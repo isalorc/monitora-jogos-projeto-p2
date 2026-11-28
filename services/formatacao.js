@@ -2,6 +2,15 @@ export function dinheiro(valor) {
   return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'USD' });
 }
 
+export function reais(valor) {
+  return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+export function precoFormatado(valorEmDolar, cotacao) {
+  if (!cotacao) return dinheiro(valorEmDolar);
+  return `≈ ${reais(Number(valorEmDolar) * cotacao)}`;
+}
+
 export function chaveDia(valor) {
   const data = new Date(valor);
   if (Number.isNaN(data.getTime())) return String(valor);

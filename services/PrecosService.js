@@ -1,4 +1,5 @@
 import { buscarMenorOfertaDoJogo, buscarPromocoes } from '../integrations/CheapSharkApi';
+import { buscarCotacaoDolar } from '../integrations/CotacaoApi';
 import { getJogosMonitorados, salvarConsulta } from '../repository/HistoricoRepository';
 import { chaveDia } from './formatacao';
 
@@ -30,6 +31,24 @@ export function resumirJogos(registros) {
 
   return [...jogos.values()]
     .sort((a, b) => new Date(b.atual.consultadoEm) - new Date(a.atual.consultadoEm));
+}
+
+export function montarMeusJogos(jogosMonitorados, registros) {
+  const resumos = new Map(resumirJogos(registros).map((resumo) => [String(resumo.atual.gameId), resumo]));
+  const comHistorico = [];
+  const semHistorico = [];
+
+  jogosMonitorados.forEach((jogo) => {
+    const resumo = resumos.get(String(jogo.gameId));
+    if (resumo) {
+      comHistorico.push(resumo);
+    } else {
+      semHistorico.push({ atual: jogo, menorPreco: null });
+    }
+  });
+
+  comHistorico.sort((a, b) => new Date(b.atual.consultadoEm) - new Date(a.atual.consultadoEm));
+  return [...comHistorico, ...semHistorico];
 }
 
 export function menoresPrecosPorDia(registros, gameId) {
@@ -64,4 +83,9 @@ export async function registrarPrecoAtual(gameId) {
 
   await salvarConsulta([oferta]);
   return oferta;
+}
+
+export async function obterCotacaoDolar() {
+  const { valor } = await buscarCotacaoDolar();
+  return valor;
 }

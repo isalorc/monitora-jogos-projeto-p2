@@ -1,8 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { dinheiro } from '../services/formatacao';
+import { precoFormatado } from '../services/formatacao';
 import { cores } from './cores';
 
-export default function JogoCard({ jogo, menorPreco, onPress }) {
+export default function JogoCard({ jogo, menorPreco, cotacao, onPress }) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -12,16 +13,19 @@ export default function JogoCard({ jogo, menorPreco, onPress }) {
     >
       {jogo.image ? <Image source={{ uri: jogo.image }} style={styles.image} /> : null}
       <View style={styles.info}>
-        <Text numberOfLines={1} style={styles.title}>{jogo.title}</Text>
-        <Text style={styles.store}>Loja: {jogo.store}</Text>
+        <View style={styles.titleRow}>
+          <Text numberOfLines={1} style={styles.title}>{jogo.title}</Text>
+          <Ionicons name="chevron-forward" size={18} color={cores.muted} />
+        </View>
+        {jogo.store ? <Text numberOfLines={1} style={styles.store}>{jogo.store}</Text> : null}
         <View style={styles.priceRow}>
-          <View>
-            <Text style={styles.priceLabel}>Preço atual</Text>
-            <Text style={styles.salePrice}>{dinheiro(jogo.salePrice)}</Text>
+          <View style={styles.priceBox}>
+            <Text style={styles.priceLabel}>Atual</Text>
+            <Text style={styles.salePrice}>{precoFormatado(jogo.salePrice, cotacao)}</Text>
           </View>
-          <View style={styles.lowPrice}>
+          <View style={styles.priceBox}>
             <Text style={styles.priceLabel}>Menor registrado</Text>
-            <Text style={styles.lowestPrice}>{menorPreco === null ? '-' : dinheiro(menorPreco)}</Text>
+            <Text style={styles.lowestPrice}>{menorPreco === null ? '-' : precoFormatado(menorPreco, cotacao)}</Text>
           </View>
         </View>
       </View>
@@ -30,15 +34,16 @@ export default function JogoCard({ jogo, menorPreco, onPress }) {
 }
 
 const styles = StyleSheet.create({
-  card: { flexDirection: 'row', backgroundColor: cores.card, borderRadius: 14, borderWidth: 1, borderColor: cores.border, padding: 14, marginTop: 12 },
-  cardPressed: { opacity: 0.75 },
-  image: { width: 110, height: 82, borderRadius: 9, backgroundColor: cores.border, marginRight: 14 },
+  card: { flexDirection: 'row', backgroundColor: cores.card, borderRadius: 16, borderWidth: 1, borderColor: cores.border, padding: 12, marginTop: 12 },
+  cardPressed: { backgroundColor: cores.cardElevado },
+  image: { width: 96, height: 72, borderRadius: 10, backgroundColor: cores.cardElevado, marginRight: 12 },
   info: { flex: 1, justifyContent: 'center', minWidth: 0 },
-  title: { color: cores.text, fontSize: 16, fontWeight: '600' },
-  store: { color: cores.muted, fontSize: 12, marginTop: 3 },
+  titleRow: { flexDirection: 'row', alignItems: 'center' },
+  title: { flex: 1, color: cores.text, fontSize: 16, fontWeight: '700', marginRight: 4 },
+  store: { color: cores.muted, fontSize: 12, marginTop: 2 },
   priceRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 },
+  priceBox: { marginRight: 20 },
   priceLabel: { color: cores.muted, fontSize: 11, marginBottom: 2 },
-  salePrice: { color: cores.green, fontSize: 14, fontWeight: '700' },
-  lowPrice: { marginLeft: 24 },
-  lowestPrice: { color: cores.primary, fontSize: 14, fontWeight: '700' },
+  salePrice: { color: cores.green, fontSize: 15, fontWeight: '700' },
+  lowestPrice: { color: cores.primary, fontSize: 15, fontWeight: '700' },
 });
